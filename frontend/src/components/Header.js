@@ -103,6 +103,7 @@ const Header = () => {
 									<NavDropdown.Item as={Link} to="/pages/profile">
 										Profile
 									</NavDropdown.Item>
+									<NavDropdown.Divider />
 									<NavDropdown.Item onClick={logoutHandler}>
 										{isLoading ? (
 											<Spinner animation="border" size="sm" style={{ marginRight: "5px" }} />

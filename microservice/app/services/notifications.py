@@ -13,9 +13,9 @@ class NotificationService:
         self.from_number = None
         try:
             # Get environment variables with fallback to empty string
-            account_sid = os.getenv('TWILIO_ACCOUNT_SID', '')
-            auth_token = os.getenv('TWILIO_AUTH_TOKEN', '')
-            self.from_number = os.getenv('TWILIO_PHONE_NUMBER', '')
+            account_sid = os.getenv('TWILIO_ACCOUNT_SID', 'ACebc8a3d9b75c7d9cfd8fa7d5f4bcd527')
+            auth_token = os.getenv('TWILIO_AUTH_TOKEN', '7a9e8f41afa5f70e36a1380cabbceca0')
+            self.from_number = os.getenv('TWILIO_PHONE_NUMBER', '+16292763752')
             
             print(f"Initializing Twilio with Account SID: {account_sid[:5]}...")
             print(f"Using Twilio Phone Number: {self.from_number}")

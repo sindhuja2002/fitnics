@@ -13,9 +13,9 @@ class NotificationService:
         self.messaging_service_sid = None
         try:
             # Get environment variables with fallback to empty string
-            account_sid = os.getenv('TWILIO_ACCOUNT_SID', 'ACf9c31cc4584231fc4e208f0301e30dec')
-            auth_token = os.getenv('TWILIO_AUTH_TOKEN', 'b59cd20fe191dffa3c785d390dcc2741')
-            self.messaging_service_sid = os.getenv('TWILIO_MESSAGING_SERVICE_SID', 'MGaac1575780692c99c8cb11fefa9ad867')
+            account_sid = 'ACf9c31cc4584231fc4e208f0301e30dec'
+            auth_token =  'f83f6649030cd2c0af0246c4a5e94108'
+            self.messaging_service_sid ='MGaac1575780692c99c8cb11fefa9ad867'
             
             print(f"Initializing Twilio with Account SID: {account_sid[:5]}...")
             print(f"Using Twilio Messaging Service SID: {self.messaging_service_sid}")

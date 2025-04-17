@@ -176,7 +176,7 @@ const Analytics = () => {
         ]
     };
 
-    // Health Metrics Chart with formatted labels
+    // Health Metrics Chart
     const healthMetricsData = {
         labels: [
             `Heart Rate: ${Math.round(analytics.metrics.filter(m => m.metric_type === 'heart_rate')

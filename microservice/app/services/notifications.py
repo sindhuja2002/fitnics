@@ -10,15 +10,15 @@ class NotificationService:
         self.collection = notification_settings
         # Initialize Twilio client with environment variables
         self.twilio_client = None
-        self.from_number = None
+        self.messaging_service_sid = None
         try:
             # Get environment variables with fallback to empty string
-            account_sid = os.getenv('TWILIO_ACCOUNT_SID', '')
-            auth_token = os.getenv('TWILIO_AUTH_TOKEN', '')
-            self.from_number = os.getenv('TWILIO_PHONE_NUMBER', '')
+            account_sid = os.getenv('TWILIO_ACCOUNT_SID', 'ACf9c31cc4584231fc4e208f0301e30dec')
+            auth_token = os.getenv('TWILIO_AUTH_TOKEN', 'b59cd20fe191dffa3c785d390dcc2741')
+            self.messaging_service_sid = os.getenv('TWILIO_MESSAGING_SERVICE_SID', 'MGaac1575780692c99c8cb11fefa9ad867')
             
             print(f"Initializing Twilio with Account SID: {account_sid[:5]}...")
-            print(f"Using Twilio Phone Number: {self.from_number}")
+            print(f"Using Twilio Messaging Service SID: {self.messaging_service_sid}")
             
             # Check if any credentials are empty
             missing_credentials = []
@@ -26,8 +26,8 @@ class NotificationService:
                 missing_credentials.append("TWILIO_ACCOUNT_SID")
             if not auth_token:
                 missing_credentials.append("TWILIO_AUTH_TOKEN")
-            if not self.from_number:
-                missing_credentials.append("TWILIO_PHONE_NUMBER")
+            if not self.messaging_service_sid:
+                missing_credentials.append("TWILIO_MESSAGING_SERVICE_SID")
                 
             if missing_credentials:
                 print(f"Warning: Missing Twilio credentials: {', '.join(missing_credentials)}")
@@ -48,7 +48,7 @@ class NotificationService:
         except Exception as e:
             print(f"Warning: Twilio client initialization failed: {str(e)}")
             self.twilio_client = None
-            self.from_number = None
+            self.messaging_service_sid = None
 
     async def update_settings(self, user_id: str, settings: NotificationSettingsInput) -> Dict:
         """
@@ -111,16 +111,16 @@ class NotificationService:
                 print(f"Error: No phone number configured for user {user_id}")
                 return False
 
-            if not self.twilio_client or not self.from_number:
+            if not self.twilio_client or not self.messaging_service_sid:
                 print("Error: Twilio client not properly initialized. Please check your Twilio credentials.")
                 return False
 
             message = "This is a test notification from Fitnics!"
-            print(f"Sending message to {phone_number} from {self.from_number}")
+            print(f"Sending message to {phone_number} using messaging service {self.messaging_service_sid}")
             try:
                 self.twilio_client.messages.create(
+                    messaging_service_sid=self.messaging_service_sid,
                     body=message,
-                    from_=self.from_number,
                     to=phone_number
                 )
                 print(f"Successfully sent test notification to {phone_number}")
@@ -161,10 +161,10 @@ class NotificationService:
                 return False
 
             message = "Time for your Fitnics activity!"
-            if self.twilio_client and self.from_number:
+            if self.twilio_client and self.messaging_service_sid:
                 self.twilio_client.messages.create(
+                    messaging_service_sid=self.messaging_service_sid,
                     body=message,
-                    from_=self.from_number,
                     to=settings['phone_number']
                 )
             else:

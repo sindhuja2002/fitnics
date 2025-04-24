@@ -28,8 +28,17 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set env vars
+        run: |
+          echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+          echo "SAFE_REF_NAME=${GITHUB_REF_NAME//\//-}" >> $GITHUB_ENV
+          echo "IMAGE_PREFIX=${GITHUB_REPOSITORY##*/}" >> $GITHUB_ENV
+
+
       - name: Set SHORT_SHA
         run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+      - name: Set IMAGE_PREFIX
+        run: echo "IMAGE_PREFIX=fitnics" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3

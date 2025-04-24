@@ -192,7 +192,7 @@ const FitnessTracker = () => {
                                             <type.icon size={24} color={type.color} />
                                             <h5 className="mb-0 ms-2">{type.label}</h5>
                                         </div>
-                                        <p className="text-muted mb-2">Today's Progress</p>
+                                        <p className="text-muted mb-2">Today&apos;s Progress</p>
                                         <h3 className="mb-0">
                                             {todayMetrics[type.value]?.toFixed(type.value === 'weight' ? 1 : 0) || '0'} 
                                             <small className="text-muted"> {type.unit}</small>
@@ -252,7 +252,7 @@ const FitnessTracker = () => {
                         <Card.Body>
                             <h4 className="mb-4">Quick Stats</h4>
                             <div className="d-flex justify-content-between align-items-center mb-3">
-                                <span>Today's Entries</span>
+                                <span>Today&apos;s Entries</span>
                                 <span className="badge bg-primary">
                                     {Object.keys(todayMetrics).length}
                                 </span>

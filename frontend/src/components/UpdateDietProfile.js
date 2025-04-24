@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Form, Button, Table } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { useUpdateStatusMutation } from "../slices/usersApiSlice";

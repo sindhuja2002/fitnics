@@ -54,7 +54,7 @@ const HomeContent = () => {
               <Card.Body>
                 <Card.Title style={{ fontWeight: "600", color: "#333" }}>Stay Motivated.</Card.Title>
                 <Card.Text style={{ color: "#666" }}>
-                  Join the World's Largest Fitness Community for advice, tips, and support 24/7.
+                  Join the World&apos;s Largest Fitness Community for advice, tips, and support 24/7.
                 </Card.Text>
               </Card.Body>
             </Card>

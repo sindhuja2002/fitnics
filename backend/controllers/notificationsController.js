@@ -8,10 +8,9 @@ class NotificationsController {
             const { phone_number, enabled, reminder_times, notification_types } = req.body;
             const user_id = req.user._id;
 
-            const response = await axios.post(
-                `${MICROSERVICE_URL}/api/v1/notifications/settings`,
+            const response = await axios.put(
+                `${MICROSERVICE_URL}/api/v1/notifications/settings/${user_id}`,
                 {
-                    user_id,
                     phone_number,
                     enabled,
                     reminder_times,
@@ -25,7 +24,7 @@ class NotificationsController {
             });
         } catch (error) {
             console.error('Error updating notification settings:', error);
-            res.status(500).json({
+            res.status(error.response?.status || 500).json({
                 success: false,
                 error: error.response?.data?.detail || 'Failed to update notification settings'
             });
@@ -46,7 +45,7 @@ class NotificationsController {
             });
         } catch (error) {
             console.error('Error getting notification settings:', error);
-            res.status(500).json({
+            res.status(error.response?.status || 500).json({
                 success: false,
                 error: error.response?.data?.detail || 'Failed to get notification settings'
             });
@@ -67,7 +66,7 @@ class NotificationsController {
             });
         } catch (error) {
             console.error('Error sending test notification:', error);
-            res.status(500).json({
+            res.status(error.response?.status || 500).json({
                 success: false,
                 error: error.response?.data?.detail || 'Failed to send test notification'
             });

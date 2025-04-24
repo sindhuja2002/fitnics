@@ -2,7 +2,7 @@ import { fetchBaseQuery, createApi } from "@reduxjs/toolkit/query/react";
 
 // Create a baseQuery function that adds the Authorization header
 const baseQuery = fetchBaseQuery({
-	baseUrl: "http://localhost:9000",
+	baseUrl: process.env.REACT_APP_API_URL || "http://localhost:9000",
 	// baseUrl: "https://fitnics.vercel.app/",
 
 	prepareHeaders: (headers, { getState }) => {
@@ -21,11 +21,58 @@ const baseQuery = fetchBaseQuery({
 
 export const apiSlice = createApi({
 	baseQuery, // Define the baseQuery
-	tagTypes: ["User"], // Set tag types (if needed for invalidation)
+	tagTypes: ["User", "Notifications", "Analytics"], // Set tag types (if needed for invalidation)
 	endpoints: (builder) => ({
-		// Define your endpoints here (currently an empty object)
+		// Notifications endpoints
+		getNotificationSettings: builder.query({
+			query: () => ({
+				url: '/api/notifications/settings',
+				method: 'GET',
+			}),
+			providesTags: ['Notifications'],
+		}),
+		updateNotificationSettings: builder.mutation({
+			query: (settings) => ({
+				url: '/api/notifications/settings',
+				method: 'PUT',
+				body: settings,
+			}),
+			invalidatesTags: ['Notifications'],
+		}),
+		sendTestNotification: builder.mutation({
+			query: () => ({
+				url: '/api/notifications/test',
+				method: 'POST',
+			}),
+		}),
+		// Analytics endpoints
+		getUserAnalytics: builder.query({
+			query: ({ userId, startDate }) => ({
+				url: `/api/analytics/user/${userId}`,
+				method: 'GET',
+				params: { start_date: startDate },
+			}),
+			providesTags: ['Analytics'],
+		}),
+		trackMetric: builder.mutation({
+			query: (data) => ({
+				url: '/api/analytics/track',
+				method: 'POST',
+				body: data,
+			}),
+			invalidatesTags: ['Analytics'],
+		}),
 	}),
 });
+
+// Export hooks for the defined endpoints
+export const {
+	useGetNotificationSettingsQuery,
+	useUpdateNotificationSettingsMutation,
+	useSendTestNotificationMutation,
+	useGetUserAnalyticsQuery,
+	useTrackMetricMutation,
+} = apiSlice;
 
 // This line will export hooks for the defined endpoints
 // Since the endpoints object is currently empty, this will not export any hooks yet.

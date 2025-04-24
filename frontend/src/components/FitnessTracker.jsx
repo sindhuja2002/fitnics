@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
-import axios from 'axios';
 import { FaDumbbell, FaHeartbeat, FaBed, FaWeight, FaFireAlt, FaWalking } from 'react-icons/fa';
-
-const API_BASE_URL = 'http://localhost:9000';
+import { useGetUserAnalyticsQuery, useTrackMetricMutation } from '../slices/apiSlice';
 
 const FitnessTracker = () => {
     const { userInfo } = useSelector((state) => state.auth);
@@ -18,7 +16,16 @@ const FitnessTracker = () => {
     });
     const [feedback, setFeedback] = useState({ type: '', message: '' });
     const [loading, setLoading] = useState(false);
-    const [todayMetrics, setTodayMetrics] = useState({});
+
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const { data: analyticsData, isLoading: isLoadingAnalytics } = useGetUserAnalyticsQuery(
+        { userId: userInfo?._id, startDate: startOfDay.toISOString() },
+        { skip: !userInfo?._id }
+    );
+
+    const [trackMetric] = useTrackMetricMutation();
 
     const metricTypes = [
         { value: 'steps', label: 'Steps', icon: FaWalking, unit: 'steps', min: 0, max: 100000, color: '#4CAF50' },
@@ -29,34 +36,10 @@ const FitnessTracker = () => {
         { value: 'sleep_duration', label: 'Sleep Duration', icon: FaBed, unit: 'hours', min: 0, max: 24, color: '#3F51B5' }
     ];
 
-    useEffect(() => {
-        fetchTodayMetrics();
-    }, [userInfo]);
-
-    const fetchTodayMetrics = async () => {
-        try {
-            const startOfDay = new Date();
-            startOfDay.setHours(0, 0, 0, 0);
-            
-            const response = await axios.get(
-                `${API_BASE_URL}/api/analytics/user/${userInfo._id}`,
-                {
-                    headers: { Authorization: `Bearer ${userInfo.token}` },
-                    params: { start_date: startOfDay.toISOString() }
-                }
-            );
-
-            if (response.data.success) {
-                const metrics = response.data.data.metrics.reduce((acc, metric) => {
-                    acc[metric.metric_type] = metric.value;
-                    return acc;
-                }, {});
-                setTodayMetrics(metrics);
-            }
-        } catch (error) {
-            console.error('Error fetching today\'s metrics:', error);
-        }
-    };
+    const todayMetrics = analyticsData?.data?.metrics?.reduce((acc, metric) => {
+        acc[metric.metric_type] = metric.value;
+        return acc;
+    }, {}) || {};
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -64,31 +47,22 @@ const FitnessTracker = () => {
         setFeedback({ type: '', message: '' });
 
         try {
-            const response = await axios.post(
-                `${API_BASE_URL}/api/analytics/track`,
-                {
-                    ...metricData,
-                    value: parseFloat(metricData.value)
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${userInfo.token}`
-                    }
-                }
-            );
+            const response = await trackMetric({
+                ...metricData,
+                value: parseFloat(metricData.value)
+            }).unwrap();
 
-            if (response.data.success) {
+            if (response.success) {
                 setFeedback({
                     type: 'success',
                     message: 'Fitness metric tracked successfully!'
                 });
                 setMetricData({ ...metricData, value: '' });
-                fetchTodayMetrics(); // Refresh today's metrics
             }
         } catch (error) {
             setFeedback({
                 type: 'danger',
-                message: error.response?.data?.error || 'Failed to track metric'
+                message: error.data?.error || 'Failed to track metric'
             });
         } finally {
             setLoading(false);

@@ -8,7 +8,7 @@ load_dotenv()
 
 MONGODB_URL = os.getenv(
     "MONGODB_URL",
-    "mongodb://localhost:27017"
+    "mongodb+srv://sindhufin0820:4toCXLcrxsICRU83@cluster0.macce.mongodb.net/fitnics"
 )
 
 # Create motor client

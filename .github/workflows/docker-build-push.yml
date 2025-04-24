@@ -76,6 +76,14 @@ jobs:
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.revision=${{ env.SHORT_SHA }}
 
+      - name: Build Frontend Assets
+        run: |
+          cd devcanvas-frontend
+          npm install
+          npm run build
+          mkdir -p ../nginx/build
+          cp -R build/* ../nginx/build/
+
       - name: Build and push Nginx
         uses: docker/build-push-action@v3
         with:

@@ -6,10 +6,7 @@ import certifi
 
 load_dotenv()
 
-MONGODB_URL = os.getenv(
-    "MONGODB_URL",
-    "mongodb+srv://sindhufin0820:4toCXLcrxsICRU83@cluster0.macce.mongodb.net/fitnics"
-)
+MONGODB_URL = "mongodb+srv://sindhufin0820:4toCXLcrxsICRU83@cluster0.macce.mongodb.net/fitnics"
 
 # Create motor client
 client = AsyncIOMotorClient(MONGODB_URL, tlsCAFile=certifi.where())

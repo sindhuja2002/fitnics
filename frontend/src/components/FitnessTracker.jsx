@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { FaDumbbell, FaHeartbeat, FaBed, FaWeight, FaFireAlt, FaWalking } from 'react-icons/fa';
 
-const API_BASE_URL = 'http://localhost:9000';
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9000';
 
 const FitnessTracker = () => {
     const { userInfo } = useSelector((state) => state.auth);
@@ -34,6 +34,11 @@ const FitnessTracker = () => {
     }, [userInfo]);
 
     const fetchTodayMetrics = async () => {
+        if (!userInfo?.token) {
+            console.error('No authentication token found');
+            return;
+        }
+
         try {
             const startOfDay = new Date();
             startOfDay.setHours(0, 0, 0, 0);
@@ -41,7 +46,10 @@ const FitnessTracker = () => {
             const response = await axios.get(
                 `${API_BASE_URL}/api/analytics/user/${userInfo._id}`,
                 {
-                    headers: { Authorization: `Bearer ${userInfo.token}` },
+                    headers: { 
+                        Authorization: `Bearer ${userInfo.token}`,
+                        'Content-Type': 'application/json'
+                    },
                     params: { start_date: startOfDay.toISOString() }
                 }
             );
@@ -55,11 +63,30 @@ const FitnessTracker = () => {
             }
         } catch (error) {
             console.error('Error fetching today\'s metrics:', error);
+            if (error.response?.status === 401) {
+                setFeedback({
+                    type: 'danger',
+                    message: 'Your session has expired. Please log in again.'
+                });
+            } else {
+                setFeedback({
+                    type: 'danger',
+                    message: error.response?.data?.error || 'Failed to fetch metrics'
+                });
+            }
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!userInfo?.token) {
+            setFeedback({
+                type: 'danger',
+                message: 'No authentication token found. Please log in again.'
+            });
+            return;
+        }
+
         setLoading(true);
         setFeedback({ type: '', message: '' });
 
@@ -72,7 +99,8 @@ const FitnessTracker = () => {
                 },
                 {
                     headers: {
-                        Authorization: `Bearer ${userInfo.token}`
+                        Authorization: `Bearer ${userInfo.token}`,
+                        'Content-Type': 'application/json'
                     }
                 }
             );
@@ -86,10 +114,17 @@ const FitnessTracker = () => {
                 fetchTodayMetrics(); // Refresh today's metrics
             }
         } catch (error) {
-            setFeedback({
-                type: 'danger',
-                message: error.response?.data?.error || 'Failed to track metric'
-            });
+            if (error.response?.status === 401) {
+                setFeedback({
+                    type: 'danger',
+                    message: 'Your session has expired. Please log in again.'
+                });
+            } else {
+                setFeedback({
+                    type: 'danger',
+                    message: error.response?.data?.error || 'Failed to track metric'
+                });
+            }
         } finally {
             setLoading(false);
         }

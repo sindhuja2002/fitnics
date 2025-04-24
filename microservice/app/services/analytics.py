@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import random
 from ..models.database import analytics
 from ..models.schemas import AnalyticsData, Metric
+from fastapi import HTTPException
 
 class AnalyticsService:
     def __init__(self):
@@ -90,46 +91,113 @@ class AnalyticsService:
         end_date: Optional[datetime] = None,
         metric_type: Optional[str] = None
     ) -> Dict:
-        """
-        Get analytics data for a specific user with optional filters
-        """
         try:
             query = {"user_id": user_id}
-            if start_date:
-                query["timestamp"] = {"$gte": start_date}
-            if end_date:
-                query["timestamp"] = {"$lte": end_date}
+            
+            if start_date or end_date:
+                query["timestamp"] = {}
+                if start_date:
+                    query["timestamp"]["$gte"] = start_date
+                if end_date:
+                    query["timestamp"]["$lte"] = end_date
+            
             if metric_type:
                 query["metric_type"] = metric_type
 
-            results = await self.collection.find(query).to_list(length=None)
-            metrics = [self._convert_to_metric(doc) for doc in results]
+            # Use aggregation pipeline for better performance
+            pipeline = [
+                {"$match": query},
+                {"$sort": {"timestamp": 1}},
+                {"$project": {
+                    "_id": 0,
+                    "user_id": 1,
+                    "metric_type": 1,
+                    "value": 1,
+                    "timestamp": 1,
+                    "metadata": 1
+                }}
+            ]
+
+            cursor = self.collection.aggregate(pipeline)
+            results = await cursor.to_list(length=None)
             
+            # Return a properly structured response
             return {
                 "user_id": user_id,
-                "metrics": metrics,
-                "time_range": {
-                    "start": start_date or datetime.min,
-                    "end": end_date or datetime.utcnow()
-                },
-                "summary": self._calculate_summary(results)
-            }
-        except Exception as e:
-            print(f"Error getting user analytics: {str(e)}")
-            # Return a valid empty response instead of an empty dict
-            return {
-                "user_id": user_id,
-                "metrics": [],
+                "metrics": results,
                 "time_range": {
                     "start": start_date or datetime.min,
                     "end": end_date or datetime.utcnow()
                 },
                 "summary": {
-                    "total_metrics": 0,
-                    "average_value": 0,
-                    "metric_types": []
+                    "total_metrics": len(results),
+                    "average_value": sum(metric.get("value", 0) for metric in results) / len(results) if results else 0,
+                    "metric_types": list(set(metric.get("metric_type") for metric in results))
                 }
             }
+        except Exception as e:
+            logger.error(f"Error getting user analytics: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to get user analytics: {str(e)}"
+            )
+
+    async def get_weekly_analytics(
+        self,
+        user_id: str,
+        week_start: datetime
+    ) -> Dict:
+        try:
+            week_end = week_start + timedelta(days=7)
+            
+            # Use aggregation pipeline for better performance
+            pipeline = [
+                {
+                    "$match": {
+                        "user_id": user_id,
+                        "timestamp": {
+                            "$gte": week_start,
+                            "$lt": week_end
+                        }
+                    }
+                },
+                {
+                    "$group": {
+                        "_id": "$metric_type",
+                        "total": {"$sum": "$value"},
+                        "average": {"$avg": "$value"},
+                        "count": {"$sum": 1},
+                        "min": {"$min": "$value"},
+                        "max": {"$max": "$value"}
+                    }
+                },
+                {
+                    "$project": {
+                        "_id": 0,
+                        "metric_type": "$_id",
+                        "total": 1,
+                        "average": 1,
+                        "count": 1,
+                        "min": 1,
+                        "max": 1
+                    }
+                }
+            ]
+
+            cursor = self.collection.aggregate(pipeline)
+            results = await cursor.to_list(length=None)
+            
+            return {
+                "week_start": week_start,
+                "week_end": week_end,
+                "metrics": results
+            }
+        except Exception as e:
+            logger.error(f"Error getting weekly analytics: {str(e)}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to get weekly analytics: {str(e)}"
+            )
 
     async def get_weekly_summary(self, user_id: str) -> Dict:
         """

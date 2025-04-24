@@ -12,7 +12,7 @@ RUN npm install --omit=dev
 COPY . .
 
 # Expose the port the app runs on
-EXPOSE 3000
+EXPOSE 9000
 
 # Start the application
-CMD ["node", "app.js"] 
+CMD ["npm", "start"] 

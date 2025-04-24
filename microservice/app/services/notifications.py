@@ -14,7 +14,7 @@ class NotificationService:
         try:
             # Get environment variables with fallback to empty string
             account_sid = 'ACf9c31cc4584231fc4e208f0301e30dec'
-            auth_token =  'f83f6649030cd2c0af0246c4a5e94108'
+            auth_token =  'a9ef4c57a84754c82d2873ffeb194820'
             self.messaging_service_sid ='MGaac1575780692c99c8cb11fefa9ad867'
             
             print(f"Initializing Twilio with Account SID: {account_sid[:5]}...")

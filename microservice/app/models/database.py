@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field, ConfigDict
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic.json_schema import JsonSchemaValue
+import certifi
 
 class PyObjectId(ObjectId):
     @classmethod
@@ -72,7 +73,7 @@ class NotificationSettings(BaseModel):
     )
 
 # Database connection
-client = AsyncIOMotorClient("mongodb://localhost:27017")
+client = AsyncIOMotorClient("mongodb+srv://sindhufin0820:4toCXLcrxsICRU83@cluster0.macce.mongodb.net/fitnics", tlsCAFile=certifi.where())
 db = client.fitnics
 
 # Collections

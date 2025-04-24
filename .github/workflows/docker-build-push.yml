@@ -38,8 +38,8 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/frontend:${{ env.SHORT_SHA }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/frontend:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend::${{ env.SHORT_SHA }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend::latest
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max

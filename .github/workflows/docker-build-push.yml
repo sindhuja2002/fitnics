@@ -78,7 +78,7 @@ jobs:
 
       - name: Build Frontend Assets
         run: |
-          cd devcanvas-frontend
+          cd frontend
           npm install
           npm run build
           mkdir -p ../nginx/build

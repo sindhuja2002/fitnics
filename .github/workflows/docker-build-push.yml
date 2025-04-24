@@ -32,14 +32,17 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build and push Frontend
-        uses: docker/build-push-action@v5
+        id: build_frontend
+        uses: docker/build-push-action@v3
         with:
           context: ./frontend
+          file: ./frontend/Dockerfile
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-frontend:${{ env.SHORT_SHA }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-frontend:latest
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:${{ github.ref_name }}
-          labels: |
-            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-            org.opencontainers.image.revision=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Build and push Backend
         uses: docker/build-push-action@v5

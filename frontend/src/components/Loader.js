@@ -12,7 +12,9 @@ const Loader = () => {
         margin: 'auto',
         display: 'block',
       }}
-    ></Spinner>
+    >
+      <span className="visually-hidden">Loading...</span>
+    </Spinner>
   );
 };
 

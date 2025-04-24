@@ -65,8 +65,8 @@ const HomeContent = () => {
         <Row className="align-items-center">
           <Col md={6}>
             <h1 style={{ fontWeight: "700", color: "#1dda1d" }}>Start your fitness journey today!</h1>
-            <p style={{ fontSize: "18px", color: "#555" }}>
-              Sign up for Fitnics and get started on your path to a healthier lifestyle.
+            <p className="lead mb-4">
+                Track your fitness journey with FitNics. We&apos;ll help you stay on top of your goals!
             </p>
               <Button
                   className="me-2"

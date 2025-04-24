@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Container, Form, Button, Row, Col, Card, Alert } from 'react-bootstrap';
-import { useGetNotificationSettingsQuery, useUpdateNotificationSettingsMutation, useSendTestNotificationMutation } from '../slices/apiSlice';
+import axios from 'axios';
+
+const API_BASE_URL = 'http://localhost:9000';
 
 const Notifications = () => {
     const { userInfo } = useSelector((state) => state.auth);
@@ -11,50 +13,80 @@ const Notifications = () => {
         reminder_times: [],
         notification_types: ['water', 'meal', 'workout']
     });
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
 
-    const { data: settingsData, isLoading, error: fetchError } = useGetNotificationSettingsQuery();
-    const [updateSettings] = useUpdateNotificationSettingsMutation();
-    const [sendTestNotification] = useSendTestNotificationMutation();
-
     useEffect(() => {
-        if (settingsData?.success) {
-            setSettings(settingsData.data.settings);
+        const fetchSettings = async () => {
+            try {
+                const config = {
+                    headers: {
+                        Authorization: `Bearer ${userInfo.token}`
+                    }
+                };
+                const response = await axios.get(`${API_BASE_URL}/api/notifications/settings/${userInfo._id}`, config);
+                if (response.data.success) {
+                    setSettings(response.data.data.settings);
+                } else {
+                    setError(response.data.error || 'Failed to fetch notification settings');
+                }
+                setLoading(false);
+            } catch (err) {
+                setError(err.response?.data?.error || err.message || 'Failed to fetch notification settings');
+                setLoading(false);
+            }
+        };
+
+        if (userInfo) {
+            fetchSettings();
         }
-    }, [settingsData]);
+    }, [userInfo]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await updateSettings(settings).unwrap();
-            if (response.success) {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${userInfo.token}`
+                }
+            };
+            const response = await axios.post(`${API_BASE_URL}/api/notifications/settings`, {
+                user_id: userInfo._id,
+                ...settings
+            }, config);
+            if (response.data.success) {
                 setSuccess(true);
                 setTimeout(() => setSuccess(false), 3000);
             } else {
-                setError(response.error || 'Failed to update settings');
+                setError(response.data.error || 'Failed to update settings');
             }
         } catch (err) {
-            setError(err.data?.error || err.message || 'Failed to update settings');
+            setError(err.response?.data?.error || err.message || 'Failed to update settings');
         }
     };
 
     const handleTestNotification = async () => {
         try {
-            const response = await sendTestNotification().unwrap();
-            if (response.success) {
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${userInfo.token}`
+                }
+            };
+            const response = await axios.post(`${API_BASE_URL}/api/notifications/test/${userInfo._id}`, {}, config);
+            if (response.data.success) {
                 setSuccess(true);
                 setTimeout(() => setSuccess(false), 3000);
             } else {
-                setError(response.error || 'Failed to send test notification');
+                setError(response.data.error || 'Failed to send test notification');
             }
         } catch (err) {
-            setError(err.data?.error || err.message || 'Failed to send test notification');
+            setError(err.response?.data?.error || err.message || 'Failed to send test notification');
         }
     };
 
-    if (isLoading) return <div>Loading notification settings...</div>;
-    if (fetchError) return <Alert variant="danger">Error: {fetchError.data?.error || fetchError.message}</Alert>;
+    if (loading) return <div>Loading notification settings...</div>;
+    if (error) return <Alert variant="danger">Error: {error}</Alert>;
 
     return (
         <Container>
@@ -69,13 +101,14 @@ const Notifications = () => {
                                 value={settings.phone_number}
                                 onChange={(e) => setSettings({ ...settings, phone_number: e.target.value })}
                                 placeholder="Enter phone number"
+                                required
                             />
                         </Form.Group>
 
                         <Form.Group className="mb-3">
                             <Form.Check
                                 type="switch"
-                                id="enabled-switch"
+                                id="notifications-enabled"
                                 label="Enable Notifications"
                                 checked={settings.enabled}
                                 onChange={(e) => setSettings({ ...settings, enabled: e.target.checked })}
@@ -84,23 +117,21 @@ const Notifications = () => {
 
                         <Form.Group className="mb-3">
                             <Form.Label>Notification Types</Form.Label>
-                            <div>
-                                {['water', 'meal', 'workout'].map((type) => (
-                                    <Form.Check
-                                        key={type}
-                                        type="checkbox"
-                                        id={`type-${type}`}
-                                        label={type.charAt(0).toUpperCase() + type.slice(1)}
-                                        checked={settings.notification_types.includes(type)}
-                                        onChange={(e) => {
-                                            const types = e.target.checked
-                                                ? [...settings.notification_types, type]
-                                                : settings.notification_types.filter(t => t !== type);
-                                            setSettings({ ...settings, notification_types: types });
-                                        }}
-                                    />
-                                ))}
-                            </div>
+                            {['water', 'meal', 'workout'].map((type) => (
+                                <Form.Check
+                                    key={type}
+                                    type="checkbox"
+                                    id={`notification-${type}`}
+                                    label={type.charAt(0).toUpperCase() + type.slice(1)}
+                                    checked={settings.notification_types.includes(type)}
+                                    onChange={(e) => {
+                                        const types = e.target.checked
+                                            ? [...settings.notification_types, type]
+                                            : settings.notification_types.filter(t => t !== type);
+                                        setSettings({ ...settings, notification_types: types });
+                                    }}
+                                />
+                            ))}
                         </Form.Group>
 
                         <Button variant="primary" type="submit" className="me-2">
@@ -110,10 +141,14 @@ const Notifications = () => {
                             Send Test Notification
                         </Button>
                     </Form>
+
+                    {success && (
+                        <Alert variant="success" className="mt-3">
+                            Settings updated successfully!
+                        </Alert>
+                    )}
                 </Card.Body>
             </Card>
-            {success && <Alert variant="success" className="mt-3">Operation successful!</Alert>}
-            {error && <Alert variant="danger" className="mt-3">Error: {error}</Alert>}
         </Container>
     );
 };

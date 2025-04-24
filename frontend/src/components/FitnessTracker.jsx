@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
+import axios from 'axios';
 import { FaDumbbell, FaHeartbeat, FaBed, FaWeight, FaFireAlt, FaWalking } from 'react-icons/fa';
-import { useGetUserAnalyticsQuery, useTrackMetricMutation } from '../slices/apiSlice';
+
+const API_BASE_URL = 'http://localhost:9000';
 
 const FitnessTracker = () => {
     const { userInfo } = useSelector((state) => state.auth);
@@ -16,16 +18,7 @@ const FitnessTracker = () => {
     });
     const [feedback, setFeedback] = useState({ type: '', message: '' });
     const [loading, setLoading] = useState(false);
-
-    const startOfDay = new Date();
-    startOfDay.setHours(0, 0, 0, 0);
-
-    const { data: analyticsData, isLoading: isLoadingAnalytics } = useGetUserAnalyticsQuery(
-        { userId: userInfo?._id, startDate: startOfDay.toISOString() },
-        { skip: !userInfo?._id }
-    );
-
-    const [trackMetric] = useTrackMetricMutation();
+    const [todayMetrics, setTodayMetrics] = useState({});
 
     const metricTypes = [
         { value: 'steps', label: 'Steps', icon: FaWalking, unit: 'steps', min: 0, max: 100000, color: '#4CAF50' },
@@ -36,10 +29,34 @@ const FitnessTracker = () => {
         { value: 'sleep_duration', label: 'Sleep Duration', icon: FaBed, unit: 'hours', min: 0, max: 24, color: '#3F51B5' }
     ];
 
-    const todayMetrics = analyticsData?.data?.metrics?.reduce((acc, metric) => {
-        acc[metric.metric_type] = metric.value;
-        return acc;
-    }, {}) || {};
+    useEffect(() => {
+        fetchTodayMetrics();
+    }, [userInfo]);
+
+    const fetchTodayMetrics = async () => {
+        try {
+            const startOfDay = new Date();
+            startOfDay.setHours(0, 0, 0, 0);
+            
+            const response = await axios.get(
+                `${API_BASE_URL}/api/analytics/user/${userInfo._id}`,
+                {
+                    headers: { Authorization: `Bearer ${userInfo.token}` },
+                    params: { start_date: startOfDay.toISOString() }
+                }
+            );
+
+            if (response.data.success) {
+                const metrics = response.data.data.metrics.reduce((acc, metric) => {
+                    acc[metric.metric_type] = metric.value;
+                    return acc;
+                }, {});
+                setTodayMetrics(metrics);
+            }
+        } catch (error) {
+            console.error('Error fetching today\'s metrics:', error);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -47,22 +64,31 @@ const FitnessTracker = () => {
         setFeedback({ type: '', message: '' });
 
         try {
-            const response = await trackMetric({
-                ...metricData,
-                value: parseFloat(metricData.value)
-            }).unwrap();
+            const response = await axios.post(
+                `${API_BASE_URL}/api/analytics/track`,
+                {
+                    ...metricData,
+                    value: parseFloat(metricData.value)
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${userInfo.token}`
+                    }
+                }
+            );
 
-            if (response.success) {
+            if (response.data.success) {
                 setFeedback({
                     type: 'success',
                     message: 'Fitness metric tracked successfully!'
                 });
                 setMetricData({ ...metricData, value: '' });
+                fetchTodayMetrics(); // Refresh today's metrics
             }
         } catch (error) {
             setFeedback({
                 type: 'danger',
-                message: error.data?.error || 'Failed to track metric'
+                message: error.response?.data?.error || 'Failed to track metric'
             });
         } finally {
             setLoading(false);
@@ -75,6 +101,18 @@ const FitnessTracker = () => {
 
     const getProgressPercentage = (value, min, max) => {
         return Math.min(100, Math.max(0, ((value - min) / (max - min)) * 100));
+    };
+
+    const getMetricTip = (metricType) => {
+        const tips = {
+            steps: "Aim for 10,000 steps daily. Try taking the stairs or walking during calls!",
+            calories_burned: "A healthy daily calorie burn includes both active exercise and regular movement throughout the day.",
+            workout_duration: "Mix cardio and strength training. Aim for 150 minutes of moderate exercise per week.",
+            heart_rate: "Your target heart rate during exercise should be between 50-85% of your maximum heart rate.",
+            weight: "Weight fluctuates naturally. Weigh yourself at the same time each day for consistency.",
+            sleep_duration: "Adults need 7-9 hours of quality sleep. Maintain a consistent sleep schedule!"
+        };
+        return tips[metricType] || "Track your progress regularly for better results!";
     };
 
     return (
@@ -240,18 +278,6 @@ const FitnessTracker = () => {
             </Row>
         </Container>
     );
-};
-
-const getMetricTip = (metricType) => {
-    const tips = {
-        steps: "Aim for 10,000 steps daily. Try taking the stairs or walking during calls!",
-        calories_burned: "A healthy daily calorie burn includes both active exercise and regular movement throughout the day.",
-        workout_duration: "Mix cardio and strength training. Aim for 150 minutes of moderate exercise per week.",
-        heart_rate: "Your target heart rate during exercise should be between 50-85% of your maximum heart rate.",
-        weight: "Weight fluctuates naturally. Weigh yourself at the same time each day for consistency.",
-        sleep_duration: "Adults need 7-9 hours of quality sleep. Maintain a consistent sleep schedule!"
-    };
-    return tips[metricType] || "Track your progress regularly for better results!";
 };
 
 export default FitnessTracker; 

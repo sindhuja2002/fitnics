@@ -1,4 +1,4 @@
-import { logout, setCredentials } from "./authSlice"; // <-- Import both logout and setCredentials
+import { logout } from "./authSlice"; // <-- Import logout action here
 import { apiSlice } from "./apiSlice";
 
 const USERS_URL = "/api/users";

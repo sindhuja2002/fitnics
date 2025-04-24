@@ -91,10 +91,10 @@ jobs:
           context: ./nginx
           file: ./nginx/Dockerfile
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-nginx:${{ env.SHORT_SHA }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-nginx:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/nginx:${{ env.SHORT_SHA }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/nginx:latest
           build-args: |
-            FRONTEND_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-frontend:${{ env.SHORT_SHA }}
+            FRONTEND_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:${{ env.SHORT_SHA }}
           push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max

@@ -59,4 +59,18 @@ jobs:
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/microservice:${{ github.ref_name }}
           labels: |
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-            org.opencontainers.image.revision=${{ github.sha }} 
+            org.opencontainers.image.revision=${{ github.sha }}
+
+      - name: Build and push Nginx
+        uses: docker/build-push-action@v3
+        with:
+          context: ./nginx
+          file: ./nginx/Dockerfile
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-nginx:${{ env.SHORT_SHA }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-nginx:latest
+          build-args: |
+            FRONTEND_IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-frontend:${{ env.SHORT_SHA }}
+          push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

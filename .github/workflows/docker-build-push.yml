@@ -30,10 +30,11 @@ jobs:
 
       - name: Set env vars
         run: |
+          REPO_OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
           echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
           echo "SAFE_REF_NAME=${GITHUB_REF_NAME//\//-}" >> $GITHUB_ENV
-          echo "IMAGE_PREFIX=${GITHUB_REPOSITORY##*/}" >> $GITHUB_ENV
-
+          echo "REPO_OWNER=$REPO_OWNER" >> $GITHUB_ENV
+          echo "IMAGE_PREFIX=$REPO_OWNER/fitnics" >> $GITHUB_ENV
 
       - name: Set SHORT_SHA
         run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV

@@ -70,4 +70,8 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
+fitnics-ssh
+fitnics-ssh.pub
 
+# Certificates
+*.pem

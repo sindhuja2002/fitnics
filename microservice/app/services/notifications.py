@@ -14,7 +14,8 @@ class NotificationService:
         try:
             # Get environment variables with fallback to empty string
             account_sid = 'ACf9c31cc4584231fc4e208f0301e30dec'
-            auth_token =  '646ccd2c2fd0e891215f084eadba84e3'
+            api_key_sid = 'SKee1878252a1e481c877bf75969f8e1d5'
+            api_key_secret = 'EhIs483REc2N5gDfXJDMD8LTrK8CtRFj'
             self.messaging_service_sid ='MGaac1575780692c99c8cb11fefa9ad867'
             
             print(f"Initializing Twilio with Account SID: {account_sid[:5]}...")
@@ -36,7 +37,7 @@ class NotificationService:
                 
             # Initialize Twilio client
             try:
-                self.twilio_client = Client(account_sid, auth_token)
+                self.twilio_client = Client(api_key_sid, api_key_secret, account_sid)
                 # Test the client by getting account info
                 account = self.twilio_client.api.accounts(account_sid).fetch()
                 print(f"Twilio client initialized successfully for account: {account.friendly_name}")

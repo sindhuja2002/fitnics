@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Container, Form, Button, Row, Col, Card, Alert } from 'react-bootstrap';
 import axios from 'axios';
+import { getServiceUrl } from '../helpers/urlHelpers';
 
-const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9000';
+const API_BASE_URL = getServiceUrl("backend")
 
 const Notifications = () => {
     const { userInfo } = useSelector((state) => state.auth);

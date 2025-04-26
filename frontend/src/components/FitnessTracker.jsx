@@ -3,8 +3,9 @@ import { Container, Row, Col, Card, Form, Button, Alert } from 'react-bootstrap'
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { FaDumbbell, FaHeartbeat, FaBed, FaWeight, FaFireAlt, FaWalking } from 'react-icons/fa';
+import { getServiceUrl } from '../helpers/urlHelpers';
 
-const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9000';
+const API_BASE_URL = getServiceUrl("backend")
 
 const FitnessTracker = () => {
     const { userInfo } = useSelector((state) => state.auth);
@@ -42,11 +43,11 @@ const FitnessTracker = () => {
         try {
             const startOfDay = new Date();
             startOfDay.setHours(0, 0, 0, 0);
-            
+
             const response = await axios.get(
                 `${API_BASE_URL}/api/analytics/user/${userInfo._id}`,
                 {
-                    headers: { 
+                    headers: {
                         Authorization: `Bearer ${userInfo.token}`,
                         'Content-Type': 'application/json'
                     },
@@ -153,20 +154,20 @@ const FitnessTracker = () => {
     return (
         <Container className="py-4">
             <h2 className="mb-4">Fitness Tracker</h2>
-            
+
             <Row>
                 <Col lg={8} className="mb-4">
                     <Card className="shadow-sm">
                         <Card.Body>
                             <h4 className="mb-4">Quick Track</h4>
-                            
+
                             {feedback.message && (
-                                <Alert variant={feedback.type} dismissible 
+                                <Alert variant={feedback.type} dismissible
                                        onClose={() => setFeedback({ type: '', message: '' })}>
                                     {feedback.message}
                                 </Alert>
                             )}
-                            
+
                             <Form onSubmit={handleSubmit}>
                                 <Row>
                                     <Col md={6}>
@@ -189,7 +190,7 @@ const FitnessTracker = () => {
                                             </Form.Select>
                                         </Form.Group>
                                     </Col>
-                                    
+
                                     <Col md={6}>
                                         <Form.Group className="mb-3">
                                             <Form.Label>
@@ -230,8 +231,8 @@ const FitnessTracker = () => {
                     <Row className="mt-4">
                         {metricTypes.map(type => (
                             <Col md={6} lg={4} key={type.value} className="mb-4">
-                                <Card 
-                                    className="h-100 shadow-sm" 
+                                <Card
+                                    className="h-100 shadow-sm"
                                     style={{ borderLeft: `4px solid ${type.color}` }}
                                 >
                                     <Card.Body>
@@ -241,11 +242,11 @@ const FitnessTracker = () => {
                                         </div>
                                         <p className="text-muted mb-2">Today&apos;s Progress</p>
                                         <h3 className="mb-0">
-                                            {todayMetrics[type.value]?.toFixed(type.value === 'weight' ? 1 : 0) || '0'} 
+                                            {todayMetrics[type.value]?.toFixed(type.value === 'weight' ? 1 : 0) || '0'}
                                             <small className="text-muted"> {type.unit}</small>
                                         </h3>
-                                        <div 
-                                            className="progress mt-2" 
+                                        <div
+                                            className="progress mt-2"
                                             style={{ height: '8px' }}
                                         >
                                             <div
@@ -315,4 +316,4 @@ const FitnessTracker = () => {
     );
 };
 
-export default FitnessTracker; 
+export default FitnessTracker;

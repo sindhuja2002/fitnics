@@ -3,8 +3,9 @@ import { ListGroup, Button } from "react-bootstrap";
 import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
+import { getServiceUrl } from "./../helpers/urlHelpers"
 
-const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9000';
+const API_BASE_URL = getServiceUrl("backend")
 
 const ProfileSidebar = () => {
     const location = useLocation();

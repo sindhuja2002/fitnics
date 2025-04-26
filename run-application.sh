@@ -44,19 +44,19 @@ check_service_health() {
 
     while [ $attempt -le $max_attempts ]; do
         log "Checking $name health (attempt $attempt/$max_attempts)..."
-        
+
         if curl -s "http://localhost:$port$endpoint" > /dev/null; then
             success "$name is healthy and responding"
             return 0
         fi
-        
+
         if [ $attempt -lt $max_attempts ]; then
             log "Waiting for $name to become healthy..."
             sleep 5
         fi
         attempt=$((attempt + 1))
     done
-    
+
     error "$name failed health check after $max_attempts attempts"
     docker logs $name
     return 1
@@ -142,6 +142,7 @@ docker run -d --name fitnics-frontend --network fitnics-network -p 3000:3000 \
     -e REACT_APP_API_URL=http://localhost:9000 \
     -e REACT_APP_MICROSERVICE_URL=http://localhost:8000 \
     -e JWT_SECRET=ftnics123 \
+    -e NODE_ENV=development \
     fitnics-frontend || {
     error "Failed to start frontend"
     docker logs fitnics-frontend
@@ -181,4 +182,4 @@ trap cleanup EXIT
 log "Press Ctrl+C to stop the application"
 while true; do
     sleep 1
-done 
+done

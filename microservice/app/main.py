@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from .routers import analytics, notifications
 from .scheduler import start_scheduler, stop_scheduler
@@ -6,6 +6,8 @@ from .database import create_indexes
 import asyncio
 from contextlib import asynccontextmanager
 import logging
+from prometheus_client import Histogram, generate_latest, CONTENT_TYPE_LATEST
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +38,31 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+REQUEST_DURATION = Histogram(
+    'http_request_duration_seconds',
+    'Duration of HTTP requests in seconds',
+    ['method', 'endpoint', 'status_code']
+)
+
+@app.middleware("http")
+async def prometheus_metrics(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    duration = time.time() - start_time
+
+    REQUEST_DURATION.labels(
+        method=request.method,
+        endpoint=request.url.path,
+        status_code=response.status_code
+    ).observe(duration)
+
+    return response
+
+# Metrics endpoint
+@app.get("/metrics")
+def metrics():
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
@@ -51,4 +78,4 @@ app.include_router(notifications.router, prefix="/api/v1/notifications", tags=["
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy"} 
+    return {"status": "healthy"}

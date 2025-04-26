@@ -4,7 +4,7 @@ module.exports = function (app) {
 	app.use(
 		"/api",
 		createProxyMiddleware({
-			target: ["http://localhost:9000", 'https://backend.fitnics.space'],
+			target: process.env.REACT_APP_BACKEND_URL,
 			changeOrigin: true,
 		})
 	);

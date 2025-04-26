@@ -15,6 +15,7 @@ import {
     ArcElement
 } from 'chart.js';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import { getServiceUrl } from "./../helpers/urlHelpers";
 
 ChartJS.register(
     CategoryScale,
@@ -58,7 +59,7 @@ const commonColors = {
     }
 };
 
-const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9000';
+const API_BASE_URL = getServiceUrl("backend")
 
 const Analytics = () => {
     const { userInfo } = useSelector((state) => state.auth);

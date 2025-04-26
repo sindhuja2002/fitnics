@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios";
 
-const API_BASE_URL = 'http://localhost:9000';
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9000';
 
 const ProfileSidebar = () => {
     const location = useLocation();
@@ -72,9 +72,9 @@ const ProfileSidebar = () => {
                     </ListGroup.Item>
                 ))}
             </ListGroup>
-            
-            <Button 
-                variant="outline-success" 
+
+            <Button
+                variant="outline-success"
                 onClick={generateTestData}
                 className="w-100"
                 style={{

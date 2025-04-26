@@ -19,7 +19,30 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors())
+
+const frontendUrls = [
+  'http://localhost:3001',         // Local dev
+  'https://frontend.localhost',    // Docker/Traefik
+  'https://app.fitnics.space',     // Production
+  'https://fitnics.space'
+];
+
+const corsOptions = {
+  origin: frontendUrls,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'Cache-Control',
+    'Expires',
+    'Pragma',
+    'auth_token'
+  ],
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(cookieParser());
 
 app.use("/api/users", userRoutes);

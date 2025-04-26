@@ -58,7 +58,7 @@ const commonColors = {
     }
 };
 
-const API_BASE_URL = 'http://localhost:9000';
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:9000';
 
 const Analytics = () => {
     const { userInfo } = useSelector((state) => state.auth);
@@ -108,8 +108,8 @@ const Analytics = () => {
         return {
             labels: last30Days.map(m => {
                 const date = new Date(m.timestamp);
-                return date.toLocaleDateString('en-US', { 
-                    month: 'short', 
+                return date.toLocaleDateString('en-US', {
+                    month: 'short',
                     day: 'numeric'
                 });
             }),
@@ -180,26 +180,26 @@ const Analytics = () => {
     const healthMetricsData = {
         labels: [
             `Heart Rate: ${Math.round(analytics.metrics.filter(m => m.metric_type === 'heart_rate')
-                .reduce((acc, curr) => acc + curr.value, 0) / 
+                .reduce((acc, curr) => acc + curr.value, 0) /
                 Math.max(1, analytics.metrics.filter(m => m.metric_type === 'heart_rate').length))} bpm`,
             `Weight: ${Math.round(analytics.metrics.filter(m => m.metric_type === 'weight')
-                .reduce((acc, curr) => acc + curr.value, 0) / 
+                .reduce((acc, curr) => acc + curr.value, 0) /
                 Math.max(1, analytics.metrics.filter(m => m.metric_type === 'weight').length))} kg`,
             `Sleep: ${Math.round(analytics.metrics.filter(m => m.metric_type === 'sleep_duration')
-                .reduce((acc, curr) => acc + curr.value, 0) / 
+                .reduce((acc, curr) => acc + curr.value, 0) /
                 Math.max(1, analytics.metrics.filter(m => m.metric_type === 'sleep_duration').length))} hrs`
         ],
         datasets: [
             {
                 data: [
                     analytics.metrics.filter(m => m.metric_type === 'heart_rate')
-                        .reduce((acc, curr) => acc + curr.value, 0) / 
+                        .reduce((acc, curr) => acc + curr.value, 0) /
                         Math.max(1, analytics.metrics.filter(m => m.metric_type === 'heart_rate').length),
                     analytics.metrics.filter(m => m.metric_type === 'weight')
-                        .reduce((acc, curr) => acc + curr.value, 0) / 
+                        .reduce((acc, curr) => acc + curr.value, 0) /
                         Math.max(1, analytics.metrics.filter(m => m.metric_type === 'weight').length),
                     analytics.metrics.filter(m => m.metric_type === 'sleep_duration')
-                        .reduce((acc, curr) => acc + curr.value, 0) / 
+                        .reduce((acc, curr) => acc + curr.value, 0) /
                         Math.max(1, analytics.metrics.filter(m => m.metric_type === 'sleep_duration').length)
                 ],
                 backgroundColor: [
@@ -278,7 +278,7 @@ const Analytics = () => {
             },
             x: {
                 grid: { display: false },
-                ticks: { 
+                ticks: {
                     font: { size: 11 },
                     maxRotation: 45,
                     minRotation: 45,
@@ -321,7 +321,7 @@ const Analytics = () => {
             },
             x: {
                 grid: { display: false },
-                ticks: { 
+                ticks: {
                     font: { size: 11 },
                     maxRotation: 45,
                     minRotation: 45,
@@ -337,7 +337,7 @@ const Analytics = () => {
             ...commonOptions.plugins,
             legend: {
                 position: 'right',
-                labels: { 
+                labels: {
                     font: { size: 12, weight: '500' },
                     padding: 20,
                     usePointStyle: true
@@ -366,7 +366,7 @@ const Analytics = () => {
     return (
         <Container fluid className="px-4">
             <h2 className="mb-4 pt-3">Your Analytics Dashboard</h2>
-            
+
             <Row className="mb-4 g-3">
                 <Col lg={6}>
                     <Card className="shadow-sm h-100">
@@ -440,7 +440,7 @@ const Analytics = () => {
                                         <h5 className="text-muted mb-3">Latest Update</h5>
                                         <p className="h5 text-dark mb-0">
                                             {new Date(Math.max(...analytics.metrics.map(m => new Date(m.timestamp))))
-                                                .toLocaleDateString('en-US', { 
+                                                .toLocaleDateString('en-US', {
                                                     year: 'numeric',
                                                     month: 'short',
                                                     day: 'numeric',
@@ -459,4 +459,4 @@ const Analytics = () => {
     );
 };
 
-export default Analytics; 
+export default Analytics;

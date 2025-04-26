@@ -2,9 +2,9 @@ import { fetchBaseQuery, createApi } from "@reduxjs/toolkit/query/react";
 
 // Create a baseQuery function that adds the Authorization header
 const baseQuery = fetchBaseQuery({
-	baseUrl: "http://localhost:9000",
+	// baseUrl: "http://localhost:9000",
 	// baseUrl: "https://fitnics.vercel.app/",
-
+	baseUrl: "https://backend.fitnics.space",
 	prepareHeaders: (headers, { getState }) => {
 		// Get the token from the Redux state or localStorage
 		const token =

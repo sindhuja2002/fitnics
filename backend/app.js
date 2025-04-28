@@ -14,6 +14,9 @@ import analyticsRoutes from "./routes/analytics.js";
 import notificationRoutes from "./routes/notifications.js";
 import { register } from "./metrics/index.js";
 import { httpRequestDuration } from './metrics/index.js';
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsdoc from 'swagger-jsdoc';
+import SwaggerOptions from './utils/swagger.js';
 
 connectDB();
 
@@ -73,6 +76,10 @@ app.get('/metrics', async (_req, res) => {
   res.setHeader('Content-Type', register.contentType);
   res.send(await register.metrics());
 });
+
+const specs = swaggerJsdoc(SwaggerOptions);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 app.use(notFound);
 app.use(errorHandler);

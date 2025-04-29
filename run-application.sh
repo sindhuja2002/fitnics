@@ -129,7 +129,8 @@ log "Starting backend..."
 docker run -d --name fitnics-backend --network fitnics-network -p 9000:9000 \
     -e MONGO_URI=mongodb+srv://sindhufin0820:4toCXLcrxsICRU83@cluster0.macce.mongodb.net/fitnics \
     -e PORT=9000 \
-    -e JWT_SECRET=ftnics123 \
+    -e JWT_SECRET=fitnics123 \
+    -e MICROSERVICE_URL=http://fitnics-microservice:8000 \
     fitnics-backend || {
     error "Failed to start backend"
     docker logs fitnics-backend
@@ -141,7 +142,7 @@ log "Starting frontend..."
 docker run -d --name fitnics-frontend --network fitnics-network -p 3000:3000 \
     -e REACT_APP_API_URL=http://localhost:9000 \
     -e REACT_APP_MICROSERVICE_URL=http://localhost:8000 \
-    -e JWT_SECRET=ftnics123 \
+    -e JWT_SECRET=fitnics123 \
     -e NODE_ENV=development \
     fitnics-frontend || {
     error "Failed to start frontend"

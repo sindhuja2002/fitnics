@@ -172,14 +172,14 @@ The application is monitored using:
   - API response times
 
 Access monitoring dashboards at:
-- Grafana: https://monitoring.fitnics.space
+- Grafana: https://grafana.fitnics.space
 - Portainer: https://portainer.fitnics.space
 
 ### API Documentation
 
 The API documentation is available at:
 - Development: http://localhost:9000/api-docs
-- Production: https://app.fitnics.space/api-docs
+- Production: https://backend.fitnics.space/api-docs
 
 ### Environment Variables
 
@@ -267,19 +267,15 @@ fitnics/
 
 - **CI/CD**:
   - GitHub Actions
-  - Docker Hub
+  - GitHub Container Registry
   - Docker Swarm
 
-- **Testing**:
-  - Jest
-  - React Testing Library
-  - Supertest
 
 ## 🌐 Production URLs
 
 - Main Application: [app.fitnics.space](https://app.fitnics.space)
-- API Documentation: [app.fitnics.space/api-docs](https://app.fitnics.space/api-docs)
-- Monitoring Dashboard: [monitoring.fitnics.space](https://monitoring.fitnics.space)
+- API Documentation: [backend.fitnics.space/api-docs](https://backend.fitnics.space/api-docs)
+- Monitoring Dashboard: [grafana.fitnics.space](https://grafana.fitnics.space)
 - Portainer: [portainer.fitnics.space](https://portainer.fitnics.space)
 - GitHub Repository: [github.com/sindhuja2002/fitnics](https://github.com/sindhuja2002/fitnics)
 

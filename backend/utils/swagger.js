@@ -7,36 +7,38 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const swaggerDefinition = {
+  openapi: '3.0.0',
   info: {
     title: 'Fitnics API Documentation',
     version:  '1.0.0',
     description: 'API documentation with Swagger',
     contact: {
-      name: 'Sidhu',
+      name: 'Sindhuja',
       email: 'sindhuja608209@gmail.com',
     },
   },
   servers: [
     {
-      url: 'http://localhost:9000/api/v1',
+      url: 'http://localhost:9000/',
       description: 'Development server',
     },
     {
-      url: 'https://backend.fitnics.space/api/v1',
+      url: 'https://backend.fitnics.space/',
       description: 'Production server',
     },
   ],
   components: {
-    customAuth: {
-      type: 'apiKey',
-      in: 'header',
-      name: 'token',
-      description: 'Custom authentication token'
+    securitySchemes: {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer {token}"'
+      }
     }
   },
   security: [{
-    // bearerAuth: [],
-    customAuth: [],
+    bearerAuth: []
   }],
 };
 

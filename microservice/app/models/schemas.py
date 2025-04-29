@@ -3,18 +3,23 @@ from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
 from bson import ObjectId
 
-class PyObjectId(str):
+class PyObjectId(ObjectId):
     @classmethod
     def __get_validators__(cls):
         yield cls.validate
 
     @classmethod
-    def validate(cls, v, _):
-        if isinstance(v, ObjectId):
-            return str(v)
-        if isinstance(v, str):
-            return v
-        raise ValueError("Not a valid ObjectId")
+    def validate(cls, v):
+        if not ObjectId.is_valid(v):
+            raise ValueError("Invalid ObjectId")
+        return ObjectId(v)
+
+    @classmethod
+    def __get_pydantic_json_schema__(cls, core_schema, handler):
+        return {'type': 'string', 'pattern': '^[0-9a-fA-F]{24}$', 'description': 'MongoDB ObjectId'}
+
+    def __str__(self):
+        return str(self)
 
 class Metric(BaseModel):
     """

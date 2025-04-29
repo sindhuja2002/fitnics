@@ -29,7 +29,9 @@ const frontendUrls = [
   'http://localhost:3000',         // Local dev
   'https://frontend.localhost',    // Docker/Traefik
   'https://app.fitnics.space',     // Production
-  'https://fitnics.space'
+  'https://fitnics.space',
+  'http://localhost:9000',         // Swagger UI local
+  'https://backend.fitnics.space'  // Swagger UI production
 ];
 
 const corsOptions = {

@@ -18,12 +18,8 @@ class PyObjectId(ObjectId):
         return ObjectId(v)
 
     @classmethod
-    def __get_pydantic_json_schema__(cls, schema_generator):
-        return JsonSchemaValue(
-            type="string",
-            pattern="^[0-9a-fA-F]{24}$",
-            description="MongoDB ObjectId"
-        )
+    def __get_pydantic_json_schema__(cls, core_schema, handler):
+        return {'type': 'string', 'pattern': '^[0-9a-fA-F]{24}$', 'description': 'MongoDB ObjectId'}
 
     def __str__(self):
         return str(self)

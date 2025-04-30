@@ -270,7 +270,6 @@ fitnics/
   - GitHub Container Registry
   - Docker Swarm
 
-
 ## 🌐 Production URLs
 
 - Main Application: [app.fitnics.space](https://app.fitnics.space)
